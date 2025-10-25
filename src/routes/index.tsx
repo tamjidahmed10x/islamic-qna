@@ -1,116 +1,241 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { BookOpen, MessageCircle, Star, Users } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
-  Zap,
-  Server,
-  Route as RouteIcon,
-  Shield,
-  Waves,
-  Sparkles,
-} from 'lucide-react'
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export const Route = createFileRoute('/')({ component: App })
 
-function App() {
-  const features = [
-    {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
-    },
-    {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
-    {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
-      description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
-    },
-    {
-      icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
-      description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
-    },
-    {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
-      description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
-    },
-    {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
-      description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
-    },
-  ]
+interface Question {
+  id: number
+  question: string
+  answer: string
+  category: string
+  views: number
+  helpful: number
+}
 
+const featuredQuestions: Array<Question> = [
+  {
+    id: 1,
+    question: 'নামাজের ওয়াক্ত সময় কীভাবে নির্ধারণ করা হয়?',
+    answer:
+      'নামাজের ওয়াক্ত সূর্যের অবস্থান অনুযায়ী নির্ধারিত হয়। ফজর সূর্যোদয়ের আগে, জোহর দুপুরের পরে, আসর বিকেলে, মাগরিব সূর্যাস্তের পরে এবং এশা রাতে আদায় করা হয়।',
+    category: 'নামাজ',
+    views: 1250,
+    helpful: 890,
+  },
+  {
+    id: 2,
+    question: 'রমজান মাসে রোজা রাখা কি সকলের জন্য বাধ্যতামূলক?',
+    answer:
+      'সুস্থ, প্রাপ্তবয়স্ক মুসলিমদের জন্য রমজানে রোজা রাখা ফরজ। তবে অসুস্থ, ভ্রমণরত, গর্ভবতী বা স্তন্যদায়ী মায়েদের জন্য ছাড় রয়েছে এবং পরে তা কাজা করতে হয়।',
+    category: 'রোজা',
+    views: 980,
+    helpful: 756,
+  },
+  {
+    id: 3,
+    question: 'যাকাত দেওয়ার নিয়ম কী?',
+    answer:
+      'নেসাব পরিমাণ সম্পদের মালিক হলে বছরে একবার ২.৫% হারে যাকাত দিতে হয়। এটি গরিব, মিসকিন এবং অভাবগ্রস্তদের মধ্যে বিতরণ করা হয়।',
+    category: 'যাকাত',
+    views: 1120,
+    helpful: 834,
+  },
+  {
+    id: 4,
+    question: 'কুরআন তেলাওয়াতের সঠিক নিয়ম কী?',
+    answer:
+      'কুরআন তেলাওয়াতের জন্য পবিত্র থাকতে হবে, তাজভিদের নিয়ম মেনে তিলাওয়াত করতে হবে এবং অর্থ বুঝে পড়ার চেষ্টা করতে হবে।',
+    category: 'কুরআন',
+    views: 1450,
+    helpful: 1123,
+  },
+  {
+    id: 5,
+    question: 'হজ্জ কখন এবং কীভাবে করতে হয়?',
+    answer:
+      'জিলহজ মাসের ৮ থেকে ১২ তারিখে হজ্জ পালন করা হয়। এটি শারীরিক ও আর্থিকভাবে সক্ষম প্রত্যেক মুসলিমের জন্য জীবনে একবার ফরজ।',
+    category: 'হজ্জ',
+    views: 890,
+    helpful: 673,
+  },
+  {
+    id: 6,
+    question: 'ইসলামে দান-সদকার গুরুত্ব কী?',
+    answer:
+      'দান-সদকা আল্লাহর সন্তুষ্টি অর্জনের মাধ্যম। এটি সম্পদ বৃদ্ধি করে এবং পাপ মোচন করে। নবী (সা.) বলেছেন, সদকা দাতার সম্পদ কমায় না।',
+    category: 'আমল',
+    views: 1340,
+    helpful: 967,
+  },
+]
+
+const categories = [
+  { name: 'নামাজ', count: 245, icon: '🕌' },
+  { name: 'রোজা', count: 189, icon: '🌙' },
+  { name: 'যাকাত', count: 134, icon: '💰' },
+  { name: 'হজ্জ', count: 98, icon: '🕋' },
+  { name: 'কুরআন', count: 312, icon: '📖' },
+  { name: 'হাদিস', count: 267, icon: '📚' },
+]
+
+function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <section className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
-            <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-              <span className="text-gray-300">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
-              </span>
-            </h1>
-          </div>
-          <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
-          </p>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
-          </p>
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
-            >
-              Documentation
-            </a>
-            <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
+    <div className="py-8 space-y-16">
+      {/* Hero Section */}
+      <section className="text-center space-y-4 py-8">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white">
+          ইসলামিক প্রশ্ন ও উত্তর
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          ইসলাম সম্পর্কে আপনার যেকোনো প্রশ্নের উত্তর খুঁজুন। বিশ্বস্ত উৎস থেকে
+          সঠিক তথ্য পান।
+        </p>
+      </section>
+
+      {/* Featured Questions Section - Now First Priority */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold">জনপ্রিয় প্রশ্নসমূহ</h2>
+            <p className="text-muted-foreground">
+              সবচেয়ে বেশি পঠিত এবং উপকারী প্রশ্ন ও উত্তর
             </p>
           </div>
+          <Button variant="outline">সব দেখুন</Button>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {featuredQuestions.map((item) => (
+            <Card
+              key={item.id}
+              className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-gray-900 dark:hover:border-white"
+            >
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <Badge variant="secondary" className="mb-2">
+                      {item.category}
+                    </Badge>
+                    <CardTitle className="text-xl leading-relaxed">
+                      {item.question}
+                    </CardTitle>
+                  </div>
+                  <BookOpen className="h-5 w-5 text-muted-foreground shrink-0" />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground leading-relaxed">
+                  {item.answer}
+                </p>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{item.views} বার পড়া হয়েছে</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-gray-900 text-gray-900 dark:fill-white dark:text-white" />
+                    <span>{item.helpful} উপকারী</span>
+                  </div>
+                </div>
+                <Button variant="link" className="p-0 h-auto">
+                  সম্পূর্ণ উত্তর পড়ুন →
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
+      {/* Categories Section */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold">বিষয়ভিত্তিক প্রশ্নাবলী</h2>
+          <p className="text-muted-foreground">
+            আপনার পছন্দের বিষয় নির্বাচন করুন
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {categories.map((category) => (
+            <Card
+              key={category.name}
+              className="hover:shadow-lg transition-shadow cursor-pointer hover:border-gray-900 dark:hover:border-white border-2"
             >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
+              <CardHeader className="text-center">
+                <div className="text-4xl mb-2">{category.icon}</div>
+                <CardTitle className="text-lg">{category.name}</CardTitle>
+                <CardDescription>{category.count} প্রশ্ন</CardDescription>
+              </CardHeader>
+            </Card>
           ))}
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="border-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white">
+              1,245
+            </CardTitle>
+            <CardDescription>মোট প্রশ্ন</CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="border-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white">
+              980
+            </CardTitle>
+            <CardDescription>উত্তর দেওয়া হয়েছে</CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="border-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white">
+              5,420
+            </CardTitle>
+            <CardDescription>সক্রিয় ব্যবহারকারী</CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="border-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white">
+              45
+            </CardTitle>
+            <CardDescription>ইসলামিক স্কলার</CardDescription>
+          </CardHeader>
+        </Card>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-gray-900 dark:bg-white rounded-lg p-8 md:p-12 text-white dark:text-gray-900 text-center space-y-4 border-2">
+        <h2 className="text-3xl md:text-4xl font-bold">
+          আপনার প্রশ্ন জিজ্ঞাসা করুন
+        </h2>
+        <p className="text-lg opacity-90 max-w-2xl mx-auto">
+          ইসলাম সম্পর্কে আপনার যেকোনো প্রশ্ন জিজ্ঞাসা করুন। আমাদের যোগ্য
+          স্কলাররা আপনাকে সঠিক উত্তর প্রদান করবেন।
+        </p>
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Button size="lg" variant="secondary">
+            <MessageCircle className="mr-2 h-5 w-5" />
+            প্রশ্ন জিজ্ঞাসা করুন
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="bg-transparent hover:bg-white/10 dark:hover:bg-gray-900/10"
+          >
+            আরও জানুন
+          </Button>
         </div>
       </section>
     </div>

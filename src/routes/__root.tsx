@@ -42,7 +42,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <ConvexProvider>
           <Header />
-          {children}
+          <main className="max-w-7xl mx-auto px-4">{children}</main>
           <TanStackDevtools
             config={{
               position: 'bottom-right',
