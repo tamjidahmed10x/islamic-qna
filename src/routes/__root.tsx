@@ -3,6 +3,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 import ConvexProvider from '../integrations/convex/provider'
 
@@ -43,6 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <ConvexProvider>
           <Header />
           <main className="max-w-7xl mx-auto px-4">{children}</main>
+          <Footer />
           <TanStackDevtools
             config={{
               position: 'bottom-right',
