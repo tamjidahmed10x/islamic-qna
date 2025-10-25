@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useConvexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { BookOpen, Filter, Search, Star, Users } from 'lucide-react'
@@ -278,58 +278,62 @@ function QuestionsPage() {
           {!isLoading && questions.length > 0 && (
             <div className="grid md:grid-cols-2 gap-6">
               {questions.map((question) => (
-                <Card
+                <Link
                   key={question._id}
-                  className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-gray-900 dark:hover:border-white group"
+                  to="/answer/$id"
+                  params={{ id: question._id }}
+                  className="block"
                 >
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-2">
-                        <Badge variant="secondary" className="mb-2">
-                          <span className="mr-1">
-                            {categoryIcons[question.category] || '📌'}
-                          </span>
-                          {question.category}
-                        </Badge>
-                        <CardTitle className="text-lg leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-300">
-                          {question.question}
-                        </CardTitle>
-                      </div>
-                      <BookOpen className="h-5 w-5 text-muted-foreground shrink-0" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-muted-foreground leading-relaxed line-clamp-3">
-                      {question.answer}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>{question.views}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-gray-900 text-gray-900 dark:fill-white dark:text-white" />
-                        <span>{question.helpful}</span>
-                      </div>
-                    </div>
-                    {question.tags && question.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {question.tags.slice(0, 3).map((tag, idx) => (
-                          <Badge
-                            key={idx}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {tag}
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-gray-900 dark:hover:border-white group h-full">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <Badge variant="secondary" className="mb-2">
+                            <span className="mr-1">
+                              {categoryIcons[question.category] || '📌'}
+                            </span>
+                            {question.category}
                           </Badge>
-                        ))}
+                          <CardTitle className="text-lg leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-300">
+                            {question.question}
+                          </CardTitle>
+                        </div>
+                        <BookOpen className="h-5 w-5 text-muted-foreground shrink-0" />
                       </div>
-                    )}
-                    <Button variant="link" className="p-0 h-auto">
-                      সম্পূর্ণ উত্তর পড়ুন →
-                    </Button>
-                  </CardContent>
-                </Card>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-muted-foreground leading-relaxed line-clamp-3">
+                        {question.answer}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          <span>{question.views}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 fill-gray-900 text-gray-900 dark:fill-white dark:text-white" />
+                          <span>{question.helpful}</span>
+                        </div>
+                      </div>
+                      {question.tags && question.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {question.tags.slice(0, 3).map((tag, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <Button variant="link" className="p-0 h-auto">
+                        সম্পূর্ণ উত্তর পড়ুন →
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}
