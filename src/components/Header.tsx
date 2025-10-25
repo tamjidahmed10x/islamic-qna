@@ -60,6 +60,7 @@ const Header = ({
   },
   menu = [
     { title: 'হোম', url: '/' },
+    { title: 'সকল প্রশ্নোত্তর', url: '/questions' },
     {
       title: 'শিক্ষা',
       url: '#',
