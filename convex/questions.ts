@@ -1,5 +1,6 @@
 import { v } from 'convex/values'
 import { mutation, query } from './_generated/server'
+import { getCurrentUser, requireAdmin, requireAuth } from './rbac'
 
 export const list = query({
   args: {
@@ -16,6 +17,13 @@ export const list = query({
 
     // Get all questions
     let questions = await ctx.db.query('questions').collect()
+
+    // Filter to show only approved questions
+    questions = questions.filter((q) => {
+      const status =
+        q.status ?? (q.answer && q.answer.length > 0 ? 'approved' : 'pending')
+      return status === 'approved'
+    })
 
     // Filter by category
     if (args.category && args.category !== 'all') {
@@ -129,6 +137,8 @@ export const seed = mutation({
         helpful: 890,
         tags: ['নামাজ', 'ওয়াক্ত', 'সময়'],
         createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'রমজান মাসে রোজা রাখা কি সকলের জন্য বাধ্যতামূলক?',
@@ -139,6 +149,8 @@ export const seed = mutation({
         helpful: 756,
         tags: ['রোজা', 'রমজান', 'ফরজ'],
         createdAt: Date.now() - 25 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'যাকাত দেওয়ার নিয়ম কী?',
@@ -149,6 +161,8 @@ export const seed = mutation({
         helpful: 834,
         tags: ['যাকাত', 'দান', 'নেসাব'],
         createdAt: Date.now() - 20 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'কুরআন তেলাওয়াতের সঠিক নিয়ম কী?',
@@ -159,6 +173,8 @@ export const seed = mutation({
         helpful: 1123,
         tags: ['কুরআন', 'তেলাওয়াত', 'তাজভিদ'],
         createdAt: Date.now() - 15 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'হজ্জ কখন এবং কীভাবে করতে হয়?',
@@ -169,6 +185,8 @@ export const seed = mutation({
         helpful: 673,
         tags: ['হজ্জ', 'মক্কা', 'ইবাদত'],
         createdAt: Date.now() - 10 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইসলামে দান-সদকার গুরুত্ব কী?',
@@ -179,6 +197,8 @@ export const seed = mutation({
         helpful: 967,
         tags: ['সদকা', 'দান', 'আমল'],
         createdAt: Date.now() - 8 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'উমরাহ এবং হজ্জের মধ্যে পার্থক্য কী?',
@@ -189,6 +209,8 @@ export const seed = mutation({
         helpful: 543,
         tags: ['হজ্জ', 'উমরাহ', 'তফাৎ'],
         createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'তাহাজ্জুদ নামাজের নিয়ম কী?',
@@ -199,6 +221,8 @@ export const seed = mutation({
         helpful: 1456,
         tags: ['তাহাজ্জুদ', 'নফল', 'রাত্রি'],
         createdAt: Date.now() - 6 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'জুমার নামাজের গুরুত্ব কী?',
@@ -209,6 +233,8 @@ export const seed = mutation({
         helpful: 1678,
         tags: ['জুমা', 'শুক্রবার', 'জামাত'],
         createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ফিতরা কখন এবং কীভাবে দিতে হয়?',
@@ -219,6 +245,8 @@ export const seed = mutation({
         helpful: 1234,
         tags: ['ফিতরা', 'ঈদ', 'সদকা'],
         createdAt: Date.now() - 4 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'হাদিস এবং কুরআনের মধ্যে সম্পর্ক কী?',
@@ -229,6 +257,8 @@ export const seed = mutation({
         helpful: 1456,
         tags: ['হাদিস', 'কুরআন', 'শরীয়ত'],
         createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইসলামে বিবাহের শর্ত কী কী?',
@@ -239,6 +269,8 @@ export const seed = mutation({
         helpful: 1890,
         tags: ['বিবাহ', 'নিকাহ', 'শর্ত'],
         createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইসলামে তালাকের বিধান কী?',
@@ -249,6 +281,8 @@ export const seed = mutation({
         helpful: 1234,
         tags: ['তালাক', 'বিবাহ', 'বিধান'],
         createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'কোরবানির নিয়ম ও শর্ত কী?',
@@ -259,6 +293,8 @@ export const seed = mutation({
         helpful: 1123,
         tags: ['কোরবানি', 'ঈদ', 'পশু'],
         createdAt: Date.now() - 12 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইসলামে শিক্ষার গুরুত্ব কী?',
@@ -269,6 +305,8 @@ export const seed = mutation({
         helpful: 1987,
         tags: ['শিক্ষা', 'জ্ঞান', 'ফরজ'],
         createdAt: Date.now() - 11 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'মসজিদে যাওয়ার আদব কী?',
@@ -279,6 +317,8 @@ export const seed = mutation({
         helpful: 890,
         tags: ['মসজিদ', 'আদব', 'সুন্নত'],
         createdAt: Date.now() - 10 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ওজু করার সঠিক নিয়ম কী?',
@@ -289,6 +329,8 @@ export const seed = mutation({
         helpful: 2789,
         tags: ['ওজু', 'পবিত্রতা', 'নামাজ'],
         createdAt: Date.now() - 9 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইস্তিখারা নামাজ কীভাবে পড়তে হয়?',
@@ -299,6 +341,8 @@ export const seed = mutation({
         helpful: 1456,
         tags: ['ইস্তিখারা', 'দুআ', 'নফল'],
         createdAt: Date.now() - 8 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'যিকির এবং দুআর গুরুত্ব কী?',
@@ -309,6 +353,8 @@ export const seed = mutation({
         helpful: 1678,
         tags: ['যিকির', 'দুআ', 'আল্লাহ'],
         createdAt: Date.now() - 7 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'রমজানে তারাবির নামাজ কত রাকাত?',
@@ -319,6 +365,8 @@ export const seed = mutation({
         helpful: 1345,
         tags: ['তারাবি', 'রমজান', 'নামাজ'],
         createdAt: Date.now() - 6 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'লাইলাতুল কদর কখন এবং কীভাবে পালন করতে হয়?',
@@ -329,6 +377,8 @@ export const seed = mutation({
         helpful: 2345,
         tags: ['লাইলাতুল কদর', 'রমজান', 'ইবাদত'],
         createdAt: Date.now() - 5 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইসলামে পিতামাতার অধিকার কী?',
@@ -339,6 +389,8 @@ export const seed = mutation({
         helpful: 2123,
         tags: ['পিতামাতা', 'অধিকার', 'সেবা'],
         createdAt: Date.now() - 4 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'হালাল রিযিক অর্জনের উপায় কী?',
@@ -349,6 +401,8 @@ export const seed = mutation({
         helpful: 1890,
         tags: ['হালাল', 'রিযিক', 'উপার্জন'],
         createdAt: Date.now() - 3 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'সহীহ হাদিসের গ্রন্থগুলো কী কী?',
@@ -359,6 +413,8 @@ export const seed = mutation({
         helpful: 1234,
         tags: ['হাদিস', 'বুখারী', 'মুসলিম'],
         createdAt: Date.now() - 2 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
       {
         question: 'ইসলামে প্রতিবেশীর অধিকার কী?',
@@ -369,6 +425,8 @@ export const seed = mutation({
         helpful: 1456,
         tags: ['প্রতিবেশী', 'অধিকার', 'সদাচরণ'],
         createdAt: Date.now() - 1 * 60 * 60 * 1000,
+        status: 'approved' as const,
+        source: 'admin' as const,
       },
     ]
 
@@ -377,5 +435,286 @@ export const seed = mutation({
     }
 
     return { message: 'Questions seeded successfully', count: questions.length }
+  },
+})
+
+// ============================================
+// USER FUNCTIONS - Question Submission
+// ============================================
+
+export const submitQuestion = mutation({
+  args: {
+    question: v.string(),
+    category: v.string(),
+    tags: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireAuth(ctx)
+
+    const questionId = await ctx.db.insert('questions', {
+      question: args.question,
+      answer: '', // Empty until admin answers
+      category: args.category,
+      tags: args.tags,
+      views: 0,
+      helpful: 0,
+      createdAt: Date.now(),
+      userId: user._id,
+      status: 'pending',
+      source: 'user',
+    })
+
+    return { questionId, success: true }
+  },
+})
+
+export const getMyQuestions = query({
+  args: {
+    page: v.optional(v.number()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx)
+    if (!user) {
+      return {
+        questions: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      }
+    }
+
+    const limit = args.limit || 10
+    const page = args.page || 1
+    const skip = (page - 1) * limit
+
+    const allQuestions = await ctx.db
+      .query('questions')
+      .withIndex('by_user', (q) => q.eq('userId', user._id))
+      .collect()
+
+    const total = allQuestions.length
+    const totalPages = Math.ceil(total / limit)
+    const questions = allQuestions
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(skip, skip + limit)
+
+    return {
+      questions,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    }
+  },
+})
+
+// ============================================
+// ADMIN FUNCTIONS - Question Management
+// ============================================
+
+export const getPendingQuestions = query({
+  args: {
+    page: v.optional(v.number()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx)
+
+    const limit = args.limit || 20
+    const page = args.page || 1
+    const skip = (page - 1) * limit
+
+    const allQuestions = await ctx.db
+      .query('questions')
+      .withIndex('by_status_and_created', (q) => q.eq('status', 'pending'))
+      .collect()
+
+    const total = allQuestions.length
+    const totalPages = Math.ceil(total / limit)
+    const questions = allQuestions
+      .sort((a, b) => a.createdAt - b.createdAt) // Oldest first
+      .slice(skip, skip + limit)
+
+    return {
+      questions,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    }
+  },
+})
+
+export const answerQuestion = mutation({
+  args: {
+    questionId: v.id('questions'),
+    answer: v.string(),
+    tags: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const admin = await requireAdmin(ctx)
+
+    const question = await ctx.db.get(args.questionId)
+    if (!question) {
+      throw new Error('Question not found')
+    }
+
+    await ctx.db.patch(args.questionId, {
+      answer: args.answer,
+      tags: args.tags || question.tags,
+      answeredBy: admin._id,
+      answeredAt: Date.now(),
+      status: 'approved', // Auto-approve when answered
+    })
+
+    return { success: true }
+  },
+})
+
+export const rejectQuestion = mutation({
+  args: {
+    questionId: v.id('questions'),
+    rejectionReason: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx)
+
+    const question = await ctx.db.get(args.questionId)
+    if (!question) {
+      throw new Error('Question not found')
+    }
+
+    await ctx.db.patch(args.questionId, {
+      status: 'rejected',
+      rejectionReason: args.rejectionReason,
+    })
+
+    return { success: true }
+  },
+})
+
+export const createAdminQuestion = mutation({
+  args: {
+    question: v.string(),
+    answer: v.string(),
+    category: v.string(),
+    tags: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx)
+
+    const questionId = await ctx.db.insert('questions', {
+      question: args.question,
+      answer: args.answer,
+      category: args.category,
+      tags: args.tags,
+      views: 0,
+      helpful: 0,
+      createdAt: Date.now(),
+      status: 'approved', // Admin questions are pre-approved
+      source: 'admin',
+    })
+
+    return { questionId, success: true }
+  },
+})
+
+export const getAllQuestions = query({
+  args: {
+    status: v.optional(
+      v.union(
+        v.literal('pending'),
+        v.literal('approved'),
+        v.literal('rejected'),
+        v.literal('all'),
+      ),
+    ),
+    page: v.optional(v.number()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx)
+
+    const limit = args.limit || 20
+    const page = args.page || 1
+    const skip = (page - 1) * limit
+
+    let allQuestions
+    if (args.status && args.status !== 'all') {
+      allQuestions = await ctx.db
+        .query('questions')
+        .withIndex('by_status', (q) =>
+          q.eq('status', args.status as 'pending' | 'approved' | 'rejected'),
+        )
+        .collect()
+    } else {
+      allQuestions = await ctx.db.query('questions').collect()
+    }
+
+    const total = allQuestions.length
+    const totalPages = Math.ceil(total / limit)
+    const questions = allQuestions
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(skip, skip + limit)
+
+    return {
+      questions,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    }
+  },
+})
+
+export const deleteQuestion = mutation({
+  args: {
+    questionId: v.id('questions'),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx)
+
+    await ctx.db.delete(args.questionId)
+
+    return { success: true }
+  },
+})
+
+export const getAdminStats = query({
+  handler: async (ctx) => {
+    await requireAdmin(ctx)
+
+    const allQuestions = await ctx.db.query('questions').collect()
+
+    const stats = {
+      total: allQuestions.length,
+      pending: allQuestions.filter((q) => q.status === 'pending').length,
+      approved: allQuestions.filter((q) => q.status === 'approved').length,
+      rejected: allQuestions.filter((q) => q.status === 'rejected').length,
+      userQuestions: allQuestions.filter((q) => q.source === 'user').length,
+      adminQuestions: allQuestions.filter((q) => q.source === 'admin').length,
+      totalViews: allQuestions.reduce((sum, q) => sum + q.views, 0),
+      totalHelpful: allQuestions.reduce((sum, q) => sum + q.helpful, 0),
+    }
+
+    return stats
   },
 })

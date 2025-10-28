@@ -1,316 +1,193 @@
-Welcome to your new TanStack app! 
+# Islamic Q&A Platform 🕌
 
-# Getting Started
+একটি আধুনিক ইসলামিক প্রশ্ন-উত্তর প্ল্যাটফর্ম যেখানে ইসলাম সম্পর্কে প্রশ্ন জিজ্ঞাসা এবং উত্তর পাওয়া যায়।
 
-To run this application:
+## Features ✨
+
+- 🔐 Clerk Authentication (Email, Google, etc.)
+- 📝 User Question Submission
+- 👨‍💼 Admin Question Management
+- 🔍 Category-wise Question Browsing
+- 🏷️ Tag-based Filtering
+- 📊 View & Helpful Counting
+- 🎯 Role-Based Access Control (RBAC)
+
+## Tech Stack 🛠️
+
+- **Frontend:** React + TanStack Router + Vite
+- **Backend:** Convex (Real-time Database)
+- **Auth:** Clerk
+- **Styling:** Tailwind CSS + Shadcn UI
+- **Language:** TypeScript
+
+## Getting Started 🚀
+
+### Installation
 
 ```bash
 npm install
-npm run start
 ```
 
-# Building For Production
+### Setup Environment Variables
 
-To build this application for production:
+Create a `.env.local` file:
+
+```bash
+# Convex
+CONVEX_DEPLOYMENT=dev:your-deployment
+VITE_CONVEX_URL=https://your-deployment.convex.cloud
+
+# Clerk
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+```
+
+### Setup Convex Environment
+
+```bash
+npx convex env set CLERK_JWT_ISSUER_DOMAIN "https://your-clerk-domain.clerk.accounts.dev"
+npx convex env set CLERK_SECRET_KEY "your_clerk_secret_key"
+```
+
+### Run Development Server
+
+```bash
+# Terminal 1: Start Convex
+npx convex dev
+
+# Terminal 2: Start Vite
+npm run dev
+```
+
+## Building For Production 📦
 
 ```bash
 npm run build
 ```
 
-## Testing
+## Admin Setup 👨‍💼
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+First user can promote themselves to admin:
 
-```bash
-npm run test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-npm run lint
-npm run format
-npm run check
-```
-
-
-## Setting up Convex
-
-- Set the `VITE_CONVEX_URL` and `CONVEX_DEPLOYMENT` environment variables in your `.env.local`. (Or run `npx convex init` to set them automatically.)
-- Run `npx convex dev` to start the Convex server.
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpx shadcn@latest add button
-```
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
+```javascript
+// Browser console (when logged in)
+const user = await convexClient.query(api.users.current)
+const result = await convexClient.mutation(api.admin.promoteToAdmin, {
+  userId: user._id,
 })
 ```
 
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
+## Data Migration 🔄
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+If you have existing data without proper fields:
 
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
+```javascript
+// Browser console (as admin)
+const result = await convexClient.mutation(api.admin.fixExistingData)
+console.log('Migration result:', result)
 ```
 
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+## Project Structure 📁
 
-### React-Query
+```
+islamic-qna/
+├── convex/              # Backend (Convex functions)
+│   ├── schema.ts        # Database schema
+│   ├── users.ts         # User management
+│   ├── questions.ts     # Question CRUD
+│   ├── rbac.ts          # Role-based access control
+│   ├── admin.ts         # Admin functions
+│   └── auth.config.ts   # Clerk auth config
+├── src/
+│   ├── components/      # React components
+│   ├── routes/          # TanStack Router routes
+│   └── integrations/    # Third-party integrations
+└── public/              # Static assets
+```
 
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
+## Available Scripts 📜
 
 ```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run format       # Format code with Prettier
 ```
 
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+## Key Features Explained 🔑
 
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+### User Roles
 
-// ...
+- **User:** Can submit questions, view all approved questions
+- **Admin:** Can answer questions, approve/reject submissions, manage users
 
-const queryClient = new QueryClient();
+### Question Workflow
 
-// ...
+1. User submits a question → Status: `pending`
+2. Admin reviews and answers → Status: `approved`
+3. Question appears in public listing
+4. Users can mark questions as helpful
 
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
+### Database Schema
 
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+**Users Table:**
+
+```typescript
+{
+  clerkId: string
+  email: string
+  name?: string
+  imageUrl?: string
+  role?: 'user' | 'admin'
+  isActive?: boolean
 }
 ```
 
-You can also add TanStack Query Devtools to the root route (optional).
+**Questions Table:**
 
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
+```typescript
+{
+  question: string
+  answer: string
+  category: string
+  tags: string[]
+  views: number
+  helpful: number
+  status?: 'pending' | 'approved' | 'rejected'
+  source?: 'user' | 'admin'
+  userId?: Id<'users'>
+  answeredBy?: Id<'users'>
+  answeredAt?: number
+  rejectionReason?: string
+  createdAt: number
 }
-
-export default App;
 ```
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+## Troubleshooting 🔧
 
-## State Management
+### User not syncing to database?
 
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+1. Check Clerk JWT template is named "convex"
+2. Verify environment variables
+3. Check browser console for errors
 
-First you need to add TanStack Store as a dependency:
+### Schema validation errors?
 
-```bash
-npm install @tanstack/store
+Run the data migration:
+
+```javascript
+await convexClient.mutation(api.admin.fixExistingData)
 ```
 
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+### Questions not showing?
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
+- Check question status (only `approved` are visible)
+- Verify you're logged in for user-specific queries
 
-const countStore = new Store(0);
+## Contributing 🤝
 
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
+Feel free to submit issues and pull requests!
 
-export default App;
-```
+## License 📄
 
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+MIT

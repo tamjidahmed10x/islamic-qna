@@ -1,0 +1,43 @@
+# Admin Setup Instructions
+
+## Step 1: Get Your User ID
+
+Browser Console এ run করুন:
+```javascript
+const user = await convexClient.query(api.users.current)
+console.log('Your User ID:', user._id)
+console.log('Copy this ID:', user._id)
+```
+
+## Step 2: Promote to Admin
+
+Convex Dashboard এ যান:
+https://dashboard.convex.dev/
+
+1. আপনার project select করুন
+2. "Functions" tab এ যান
+3. "admin:promoteToAdmin" function খুঁজুন
+4. Run করুন with arguments:
+
+```json
+{
+  "userId": "paste-your-user-id-here"
+}
+```
+
+## Step 3: Run Migration
+
+এখন browser console এ:
+```javascript
+const result = await convexClient.mutation(api.admin.fixExistingData)
+console.log('Migration result:', result)
+```
+
+## Alternative: Quick Fix
+
+যদি কোন user না থাকে, তাহলে:
+
+1. Application চালান: npm run dev
+2. Sign up/Login করুন
+3. উপরের steps follow করুন
+

@@ -66,12 +66,14 @@ export const store = mutation({
       return existing._id
     }
 
-    // Create new user
+    // Create new user with default role
     const userId = await ctx.db.insert('users', {
       clerkId: identity.subject,
       email: identity.email!,
       name: identity.name,
       imageUrl: identity.pictureUrl,
+      role: 'user', // Default role
+      isActive: true, // Default active status
     })
 
     console.log('✅ Created new user:', userId)

@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
 import type * as http from "../http.js";
 import type * as questions from "../questions.js";
+import type * as rbac from "../rbac.js";
 import type * as users from "../users.js";
 
 import type {
@@ -27,8 +29,10 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
   http: typeof http;
   questions: typeof questions;
+  rbac: typeof rbac;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
