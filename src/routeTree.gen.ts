@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuestionsRouteImport } from './routes/questions'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuestionsIdRouteImport } from './routes/questions.$id'
 import { Route as AnswerIdRouteImport } from './routes/answer.$id'
@@ -17,6 +18,11 @@ import { Route as AnswerIdRouteImport } from './routes/answer.$id'
 const QuestionsRoute = QuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,12 +43,14 @@ const AnswerIdRoute = AnswerIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/profile': typeof ProfileRoute
   '/questions': typeof QuestionsRouteWithChildren
   '/answer/$id': typeof AnswerIdRoute
   '/questions/$id': typeof QuestionsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/profile': typeof ProfileRoute
   '/questions': typeof QuestionsRouteWithChildren
   '/answer/$id': typeof AnswerIdRoute
   '/questions/$id': typeof QuestionsIdRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/profile': typeof ProfileRoute
   '/questions': typeof QuestionsRouteWithChildren
   '/answer/$id': typeof AnswerIdRoute
   '/questions/$id': typeof QuestionsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/questions' | '/answer/$id' | '/questions/$id'
+  fullPaths: '/' | '/profile' | '/questions' | '/answer/$id' | '/questions/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/questions' | '/answer/$id' | '/questions/$id'
-  id: '__root__' | '/' | '/questions' | '/answer/$id' | '/questions/$id'
+  to: '/' | '/profile' | '/questions' | '/answer/$id' | '/questions/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/profile'
+    | '/questions'
+    | '/answer/$id'
+    | '/questions/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ProfileRoute: typeof ProfileRoute
   QuestionsRoute: typeof QuestionsRouteWithChildren
   AnswerIdRoute: typeof AnswerIdRoute
 }
@@ -75,6 +91,13 @@ declare module '@tanstack/react-router' {
       path: '/questions'
       fullPath: '/questions'
       preLoaderRoute: typeof QuestionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -115,6 +138,7 @@ const QuestionsRouteWithChildren = QuestionsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ProfileRoute: ProfileRoute,
   QuestionsRoute: QuestionsRouteWithChildren,
   AnswerIdRoute: AnswerIdRoute,
 }

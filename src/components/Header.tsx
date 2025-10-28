@@ -1,4 +1,11 @@
 import { Book, Menu, Sunset, Trees, Zap } from 'lucide-react'
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/clerk-react'
 
 import {
   Accordion,
@@ -157,12 +164,26 @@ const Header = ({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="outline" size="sm">
+                  {auth.login.title}
+                </Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button size="sm">{auth.signup.title}</Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-9 h-9',
+                  },
+                }}
+              />
+            </SignedIn>
           </div>
         </nav>
 
@@ -205,12 +226,26 @@ const Header = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
+                    <SignedOut>
+                      <SignInButton mode="modal">
+                        <Button variant="outline">{auth.login.title}</Button>
+                      </SignInButton>
+                      <SignUpButton mode="modal">
+                        <Button>{auth.signup.title}</Button>
+                      </SignUpButton>
+                    </SignedOut>
+                    <SignedIn>
+                      <div className="flex justify-center">
+                        <UserButton
+                          afterSignOutUrl="/"
+                          appearance={{
+                            elements: {
+                              avatarBox: 'w-10 h-10',
+                            },
+                          }}
+                        />
+                      </div>
+                    </SignedIn>
                   </div>
                 </div>
               </SheetContent>

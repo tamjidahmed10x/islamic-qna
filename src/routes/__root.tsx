@@ -4,6 +4,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import { UserSync } from '../components/UserSync'
 
 import ConvexProvider from '../integrations/convex/provider'
 
@@ -42,6 +43,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ConvexProvider>
+          <UserSync />
           <Header />
           <main className="max-w-7xl mx-auto px-4">{children}</main>
           <Footer />
