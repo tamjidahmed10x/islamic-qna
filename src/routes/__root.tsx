@@ -5,6 +5,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { UserSync } from '../components/UserSync'
+import { Toaster } from '../components/ui/sonner'
 
 import ConvexProvider from '../integrations/convex/provider'
 
@@ -47,6 +48,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Header />
           <main className="max-w-7xl mx-auto px-4">{children}</main>
           <Footer />
+          <Toaster />
           <TanStackDevtools
             config={{
               position: 'bottom-right',

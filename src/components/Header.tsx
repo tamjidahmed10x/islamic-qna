@@ -1,4 +1,4 @@
-import { Book, Menu, Sunset, Trees, Zap } from 'lucide-react'
+import { Book, Menu, Shield, Sunset, Trees, Zap } from 'lucide-react'
 import {
   SignInButton,
   SignUpButton,
@@ -6,6 +6,8 @@ import {
   SignedOut,
   UserButton,
 } from '@clerk/clerk-react'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 
 import {
   Accordion,
@@ -68,6 +70,8 @@ const Header = ({
   menu = [
     { title: 'হোম', url: '/' },
     { title: 'সকল প্রশ্নোত্তর', url: '/questions' },
+    { title: 'প্রশ্ন করুন', url: '/questions' },
+    { title: 'প্রোফাইল', url: '/profile' },
     {
       title: 'শিক্ষা',
       url: '#',
@@ -76,61 +80,27 @@ const Header = ({
           title: 'কুরআন',
           description: 'পবিত্র কুরআন এবং এর শিক্ষা সম্পর্কে জানুন',
           icon: <Book className="size-5 shrink-0" />,
-          url: '#',
+          url: '/questions?category=কুরআন',
         },
         {
           title: 'হাদিস',
           description: 'নবী মুহাম্মদ (সা.) এর বাণী এবং কর্ম সম্পর্কে জানুন',
           icon: <Trees className="size-5 shrink-0" />,
-          url: '#',
+          url: '/questions?category=হাদিস',
         },
         {
-          title: 'ইসলামের ইতিহাস',
-          description: 'ইসলামী সভ্যতা এবং ঐতিহ্য সম্পর্কে জানুন',
+          title: 'নামাজ',
+          description: 'নামাজ এবং এর নিয়ম সম্পর্কে জানুন',
           icon: <Sunset className="size-5 shrink-0" />,
-          url: '#',
+          url: '/questions?category=নামাজ',
         },
         {
-          title: 'আলেমগণ',
-          description: 'প্রখ্যাত ইসলামিক স্কলারদের রচনা পড়ুন',
+          title: 'রোজা',
+          description: 'রোজা এবং রমজান সম্পর্কে জানুন',
           icon: <Zap className="size-5 shrink-0" />,
-          url: '#',
+          url: '/questions?category=রোজা',
         },
       ],
-    },
-    {
-      title: 'সংস্থান',
-      url: '#',
-      items: [
-        {
-          title: 'সাধারণ প্রশ্ন',
-          description: 'ইসলাম সম্পর্কে প্রায়শই জিজ্ঞাসিত প্রশ্ন',
-          icon: <Zap className="size-5 shrink-0" />,
-          url: '#',
-        },
-        {
-          title: 'প্রশ্ন করুন',
-          description: 'আলেমদের কাছে আপনার ইসলামিক প্রশ্ন জমা দিন',
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: '#',
-        },
-        {
-          title: 'নামাজের সময়',
-          description: 'আপনার এলাকার সঠিক নামাজের সময় খুঁজুন',
-          icon: <Trees className="size-5 shrink-0" />,
-          url: '#',
-        },
-        {
-          title: 'ইসলামিক ক্যালেন্ডার',
-          description: 'ইসলামিক তারিখ এবং গুরুত্বপূর্ণ ঘটনা দেখুন',
-          icon: <Book className="size-5 shrink-0" />,
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'আমাদের সম্পর্কে',
-      url: '#',
     },
   ],
   auth = {
@@ -138,6 +108,7 @@ const Header = ({
     signup: { title: 'সাইন আপ', url: '#' },
   },
 }: NavbarProps) => {
+  const user = useQuery(api.users.getCurrentUser)
   return (
     <section className="py-4 shadow-xs border-b ">
       <div className="max-w-7xl mx-auto px-4">
@@ -159,6 +130,17 @@ const Header = ({
               <NavigationMenu>
                 <NavigationMenuList>
                   {menu.map((item) => renderMenuItem(item))}
+                  {user?.role === 'admin' && (
+                    <NavigationMenuItem>
+                      <NavigationMenuLink
+                        href="/admin"
+                        className="bg-background hover:bg-muted hover:text-accent-foreground group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors"
+                      >
+                        <Shield className="size-4 mr-2" />
+                        অ্যাডমিন
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  )}
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
@@ -223,6 +205,15 @@ const Header = ({
                     className="flex w-full flex-col gap-4"
                   >
                     {menu.map((item) => renderMobileMenuItem(item))}
+                    {user?.role === 'admin' && (
+                      <a
+                        href="/admin"
+                        className="text-md font-semibold flex items-center gap-2"
+                      >
+                        <Shield className="size-4" />
+                        অ্যাডমিন প্যানেল
+                      </a>
+                    )}
                   </Accordion>
 
                   <div className="flex flex-col gap-3">

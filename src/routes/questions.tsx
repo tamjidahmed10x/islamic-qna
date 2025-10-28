@@ -1,8 +1,21 @@
 import { useEffect, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useConvexQuery } from '@convex-dev/react-query'
+import { useConvexQuery, useConvexMutation } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
-import { BookOpen, Filter, Search, Star, Users } from 'lucide-react'
+import {
+  BookOpen,
+  Filter,
+  Search,
+  Star,
+  Users,
+  MessageCircle,
+  Plus,
+  X,
+} from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -13,6 +26,24 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 
 interface QuestionsSearchParams {
   page?: number
@@ -20,6 +51,29 @@ interface QuestionsSearchParams {
   search?: string
   sortBy?: string
 }
+
+const questionSchema = z.object({
+  question: z
+    .string()
+    .min(10, 'প্রশ্ন কমপক্ষে ১০ অক্ষরের হতে হবে')
+    .max(500, 'প্রশ্ন সর্বোচ্চ ৫০০ অক্ষরের হতে পারে'),
+  category: z.string().min(1, 'অনুগ্রহ করে একটি বিভাগ নির্বাচন করুন'),
+})
+
+type QuestionForm = z.infer<typeof questionSchema>
+
+const categoryOptions = [
+  'নামাজ',
+  'রোজা',
+  'যাকাত',
+  'হজ্জ',
+  'কুরআন',
+  'হাদিস',
+  'বিবাহ',
+  'আমল',
+  'কোরবানি',
+  'অন্যান্য',
+]
 
 export const Route = createFileRoute('/questions')({
   component: QuestionsPage,
@@ -57,7 +111,14 @@ function QuestionsPage() {
 
   const [searchInput, setSearchInput] = useState(search)
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+  const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false)
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const currentUser = useConvexQuery(api.users.current, {})
+
+  // Always use the public list query - no admin mode from this page
   const questionsData = useConvexQuery(api.questions.list, {
     page,
     category: category === 'all' ? undefined : category,
@@ -67,10 +128,68 @@ function QuestionsPage() {
   })
 
   const categoriesData = useConvexQuery(api.questions.getCategories, {})
+  const submitQuestion = useConvexMutation(api.questions.submitQuestion)
+
+  const form = useForm<QuestionForm>({
+    resolver: zodResolver(questionSchema),
+    defaultValues: {
+      question: '',
+      category: '',
+    },
+  })
 
   useEffect(() => {
     setSearchInput(search)
   }, [search])
+
+  const addTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim()) && tags.length < 5) {
+      setTags([...tags, tagInput.trim()])
+      setTagInput('')
+    }
+  }
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter((tag) => tag !== tagToRemove))
+  }
+
+  const onSubmit = async (data: QuestionForm) => {
+    // Check if user is logged in
+    if (!currentUser) {
+      toast.error('লগইন করুন', {
+        description: 'প্রশ্ন জিজ্ঞাসা করতে আপনাকে লগইন করতে হবে',
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await submitQuestion({
+        question: data.question,
+        category: data.category,
+        tags: tags.length > 0 ? tags : [data.category],
+      })
+
+      toast.success('প্রশ্ন সফলভাবে জমা দেওয়া হয়েছে', {
+        description: 'আমরা শীঘ্রই আপনার প্রশ্নের উত্তর প্রদান করব।',
+      })
+      setIsQuestionDialogOpen(false)
+      form.reset()
+      setTags([])
+      // Redirect to profile
+      navigate({ to: '/profile' })
+    } catch (error) {
+      console.error('Submit error:', error)
+      toast.error('প্রশ্ন জমা দিতে ব্যর্থ', {
+        description:
+          error instanceof Error
+            ? error.message
+            : 'অনুগ্রহ করে আবার চেষ্টা করুন',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -119,9 +238,154 @@ function QuestionsPage() {
               {pagination?.total || 0} টি প্রশ্নের মধ্য থেকে খুঁজুন
             </p>
           </div>
-          <Button size="lg" className="w-full md:w-auto">
-            প্রশ্ন জিজ্ঞাসা করুন
-          </Button>
+
+          <Dialog
+            open={isQuestionDialogOpen}
+            onOpenChange={setIsQuestionDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button size="lg" className="w-full md:w-auto">
+                <MessageCircle className="mr-2 h-5 w-5" />
+                প্রশ্ন জিজ্ঞাসা করুন
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-6 w-6" />
+                  নতুন প্রশ্ন জিজ্ঞাসা করুন
+                </DialogTitle>
+                <DialogDescription>
+                  {!currentUser ? (
+                    <span className="text-yellow-600 font-medium">
+                      ⚠️ প্রশ্ন জমা দিতে আপনাকে লগইন করতে হবে
+                    </span>
+                  ) : (
+                    'ইসলাম সম্পর্কে আপনার প্রশ্ন লিখুন। আমাদের যোগ্য আলেমগণ আপনাকে সঠিক উত্তর প্রদান করবেন।'
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="question"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>প্রশ্ন *</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="আপনার প্রশ্ন লিখুন..."
+                            className="min-h-24 resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          স্পষ্ট এবং বিস্তারিতভাবে লিখুন (১০-৫০০ অক্ষর)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>বিভাগ *</FormLabel>
+                        <FormControl>
+                          <div className="grid grid-cols-3 gap-2">
+                            {categoryOptions.map((cat) => (
+                              <Button
+                                key={cat}
+                                type="button"
+                                variant={
+                                  field.value === cat ? 'default' : 'outline'
+                                }
+                                onClick={() => field.onChange(cat)}
+                                className="w-full"
+                              >
+                                {cat}
+                              </Button>
+                            ))}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="space-y-2">
+                    <FormLabel>ট্যাগ (ঐচ্ছিক)</FormLabel>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="ট্যাগ লিখুন"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            addTag()
+                          }
+                        }}
+                        disabled={tags.length >= 5}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={addTag}
+                        disabled={!tagInput.trim() || tags.length >= 5}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <Badge key={tag} variant="secondary">
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => removeTag(tag)}
+                              className="ml-2 hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={isSubmitting || !currentUser}
+                    >
+                      {isSubmitting
+                        ? 'জমা দেওয়া হচ্ছে...'
+                        : !currentUser
+                          ? 'লগইন করুন'
+                          : 'প্রশ্ন জমা দিন'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsQuestionDialogOpen(false)}
+                    >
+                      বাতিল
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <form onSubmit={handleSearch} className="flex gap-2">
@@ -288,12 +552,14 @@ function QuestionsPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 space-y-2">
-                          <Badge variant="secondary" className="mb-2">
-                            <span className="mr-1">
-                              {categoryIcons[question.category] || '📌'}
-                            </span>
-                            {question.category}
-                          </Badge>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary">
+                              <span className="mr-1">
+                                {categoryIcons[question.category] || '📌'}
+                              </span>
+                              {question.category}
+                            </Badge>
+                          </div>
                           <CardTitle className="text-lg leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-300">
                             {question.question}
                           </CardTitle>

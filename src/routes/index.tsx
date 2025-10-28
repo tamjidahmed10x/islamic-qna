@@ -213,17 +213,21 @@ function App() {
           স্কলাররা আপনাকে সঠিক উত্তর প্রদান করবেন।
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
-          <Button size="lg" variant="secondary">
-            <MessageCircle className="mr-2 h-5 w-5" />
-            প্রশ্ন জিজ্ঞাসা করুন
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="bg-transparent hover:bg-white/10 dark:hover:bg-gray-900/10"
-          >
-            আরও জানুন
-          </Button>
+          <Link to="/questions" search={{ page: 1 }}>
+            <Button size="lg" variant="secondary">
+              <MessageCircle className="mr-2 h-5 w-5" />
+              প্রশ্ন জিজ্ঞাসা করুন
+            </Button>
+          </Link>
+          <Link to="/questions" search={{ page: 1 }}>
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-transparent hover:bg-white/10 dark:hover:bg-gray-900/10"
+            >
+              আরও জানুন
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

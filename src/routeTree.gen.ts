@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as QuestionsIdRouteImport } from './routes/questions.$id'
 import { Route as AnswerIdRouteImport } from './routes/answer.$id'
 
 const QuestionsRoute = QuestionsRouteImport.update({
@@ -25,15 +25,15 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const QuestionsIdRoute = QuestionsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => QuestionsRoute,
 } as any)
 const AnswerIdRoute = AnswerIdRouteImport.update({
   id: '/answer/$id',
@@ -43,44 +43,39 @@ const AnswerIdRoute = AnswerIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/profile': typeof ProfileRoute
-  '/questions': typeof QuestionsRouteWithChildren
+  '/questions': typeof QuestionsRoute
   '/answer/$id': typeof AnswerIdRoute
-  '/questions/$id': typeof QuestionsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/profile': typeof ProfileRoute
-  '/questions': typeof QuestionsRouteWithChildren
+  '/questions': typeof QuestionsRoute
   '/answer/$id': typeof AnswerIdRoute
-  '/questions/$id': typeof QuestionsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/profile': typeof ProfileRoute
-  '/questions': typeof QuestionsRouteWithChildren
+  '/questions': typeof QuestionsRoute
   '/answer/$id': typeof AnswerIdRoute
-  '/questions/$id': typeof QuestionsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile' | '/questions' | '/answer/$id' | '/questions/$id'
+  fullPaths: '/' | '/admin' | '/profile' | '/questions' | '/answer/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/questions' | '/answer/$id' | '/questions/$id'
-  id:
-    | '__root__'
-    | '/'
-    | '/profile'
-    | '/questions'
-    | '/answer/$id'
-    | '/questions/$id'
+  to: '/' | '/admin' | '/profile' | '/questions' | '/answer/$id'
+  id: '__root__' | '/' | '/admin' | '/profile' | '/questions' | '/answer/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ProfileRoute: typeof ProfileRoute
-  QuestionsRoute: typeof QuestionsRouteWithChildren
+  QuestionsRoute: typeof QuestionsRoute
   AnswerIdRoute: typeof AnswerIdRoute
 }
 
@@ -100,19 +95,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/questions/$id': {
-      id: '/questions/$id'
-      path: '/$id'
-      fullPath: '/questions/$id'
-      preLoaderRoute: typeof QuestionsIdRouteImport
-      parentRoute: typeof QuestionsRoute
     }
     '/answer/$id': {
       id: '/answer/$id'
@@ -124,22 +119,11 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface QuestionsRouteChildren {
-  QuestionsIdRoute: typeof QuestionsIdRoute
-}
-
-const QuestionsRouteChildren: QuestionsRouteChildren = {
-  QuestionsIdRoute: QuestionsIdRoute,
-}
-
-const QuestionsRouteWithChildren = QuestionsRoute._addFileChildren(
-  QuestionsRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ProfileRoute: ProfileRoute,
-  QuestionsRoute: QuestionsRouteWithChildren,
+  QuestionsRoute: QuestionsRoute,
   AnswerIdRoute: AnswerIdRoute,
 }
 export const routeTree = rootRouteImport
